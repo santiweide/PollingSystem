@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>vote result</title>
+    <meta HTTP-EQUIV="pragma" CONTENT="no-cache"> 
+	<meta HTTP-EQUIV="Cache-Control" CONTENT="no-store, must-revalidate"> 
+	<meta HTTP-EQUIV="expires" CONTENT="0">
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<script src="js/vue.min.js"></script>
+    <script src="js/jquery-3.4.1.min.js"></script>
+	<script src="js/vue-poll.min.js"></script>
+   	    <style>
+        body{
+          font-family: 'Avenir', Helvetica, Arial, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;          
+        }
+        .cnt, .logo-cnt{
+            margin: 0 auto;
+            max-width: 500px;
+        }
+        .logo-cnt{
+            border-bottom: 1px solid #2c3e50;
+            margin-bottom: 40px;
+        }
+        h1{
+            text-align: center;
+            font-size: 35px;
+            margin: 10px 0 40px;
+            color: #2c3e50;
+        }
+        .logo{
+            display: block;
+            margin: 0 auto;
+        }
+		@media screen and (max-width:767px){
+			.logo{
+				max-width: 100px
+			}
+		}
+		.links-cnt{
+			text-align: center;
+			margin-top: 40px;
+		}
+		.links-cnt .link{
+			color: #2c3e50;
+			text-decoration: none;
+		}
+    </style>
+</head>
+<body>
+
+<div id="app">
+	<div class="logo-cnt">
+	   <h1>Poll Result</h1>
+	</div>
+
+	<div class="cnt">
+		<vue-poll  v-bind="options" />
+
+	</div>
+</div>
+
+<div class="logo-cnt">
+<a class="btn btn-lg btn-primary btn-block" href="vote.html" role="button">返回投票界面</a>
+<a class="btn btn-lg btn-primary btn-block" href="LoginPage.html" role="button">返回主界面</a>
+</div>
+</body>
+</html>
+
+<script>
+	Vue.use(VuePoll)
+    var vm = new Vue({
+        el: '#app',
+        data: function(){
+        	return{
+        		options:
+        		{
+        			question: 'Who\'s your favourite <strong>Gilr</strong> in Dreamcatcher?',
+                    answers: [], 
+                    finalResults: false,
+                    showResults: true,
+                    multiple: false
+        		}
+            }
+        },
+        created: function () {
+　　　　　　//为了在内部函数能使用外部函数的this对象，要给它赋值了一个名叫self的变量。
+            var self = this;
+            $.ajax({
+                url: 'result.do',
+                type: 'get',
+                data: {},
+                dataType: 'json'
+            }).then(function (res) {
+                console.log(res);
+　　　　　　　　　　//把从json获取的数据赋值给数组
+                self.options.answers = res;
+            }).fail(function () {
+                console.log('失败');
+            })
+        },
+        mounted() {
+       	  if (this.timer) {
+       		    clearInterval(this.timer)
+       		  } else {
+       		    this.timer = setInterval(() => {
+       		      console.log('10S刷新一次数据')
+       		      var self = this;
+            
+       		      $.ajax({
+		                url: 'result.do',
+		                type: 'get',
+		                data: {},
+		                dataType: 'json'
+		            }).then(function (res) {
+		                console.log(res);
+		　　　　　　　　　　//把从json获取的数据赋值给数组
+		                self.options.answers = res;
+		            }).fail(function () {
+		                console.log('失败');
+		            })
+       		    }, 10000)
+       		  }
+       		},
+       		destroyed() {
+       		  clearInterval(this.timer)
+       		}
+        
+    })
+
+
+
+</script>
